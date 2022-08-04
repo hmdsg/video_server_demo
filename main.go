@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -46,9 +46,9 @@ func (t *tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Read Body
-	body := make([]byte, length)
-	length, err = r.Body.Read(body)
-	if err != nil && err != io.EOF {
+	body, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
 		fmt.Println("StatusInternalServerError")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -58,7 +58,10 @@ func (t *tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	//parse to json
 	var jsonBody map[string]string
-	err = json.Unmarshal(body[:length], &jsonBody)
+
+	fmt.Println(jsonBody)
+
+	err = json.Unmarshal(body, &jsonBody)
 	if err != nil {
 		fmt.Println(err)
 		fmt.Println("Unmarshal:StatusInternalServerError")
