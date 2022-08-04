@@ -22,26 +22,19 @@ func (t *tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	apiSecret := os.Getenv("apiSecret")
 	room := "room123"
 
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+
 	if r.Method == "OPTIONS" {
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		fmt.Fprintf(w, "ok")
+		fmt.Println("OPTION method")
+		fmt.Fprintf(w, "option ok")
 		return
 	}
 
 	if r.Method == "GET" {
 		fmt.Println("GET method")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		fmt.Fprintf(w, "get ok")
-		return
-	}
-
-	if r.Method != "POST" {
-		fmt.Println("StatusBadRequest")
-		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -87,10 +80,6 @@ func (t *tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t.token = token
 
 	fmt.Println(jsonBody["identity"])
-
-	w.Header().Set("Access-Control-Allow-Headers", "*")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
 	fmt.Fprintf(w, t.token)
 }
