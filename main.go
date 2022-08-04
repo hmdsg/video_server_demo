@@ -22,6 +22,15 @@ func (t *tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	apiSecret := os.Getenv("apiSecret")
 	room := "room123"
 
+	if r.Method == "GET" {
+		fmt.Println("GET method")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST")
+		fmt.Fprintf(w, "get ok")
+		return
+	}
+
 	if r.Method != "POST" {
 		fmt.Println("StatusBadRequest")
 		w.WriteHeader(http.StatusBadRequest)
@@ -43,6 +52,8 @@ func (t *tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	fmt.Println(length)
 
 	//parse to json
 	var jsonBody map[string]string
@@ -68,6 +79,10 @@ func (t *tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t.token = token
 
 	fmt.Println(jsonBody["identity"])
+
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST")
 
 	fmt.Fprintf(w, t.token)
 }
