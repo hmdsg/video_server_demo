@@ -13,11 +13,11 @@ import (
 	"github.com/livekit/protocol/auth"
 )
 
-type tokenHandler struct {
-	token string
+type TokenHandler struct {
+	Token string `json:"token"`
 }
 
-func (t *tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (t *TokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	apiKey := os.Getenv("apiKey")
 	apiSecret := os.Getenv("apiSecret")
 	room := "room123"
@@ -80,14 +80,22 @@ func (t *tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	t.token = token
+	t.Token = token
 
 	fmt.Println(jsonBody["identity"])
 
-	fmt.Fprintf(w, t.token)
+	res, err := json.Marshal(t)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(res)
+
 }
 
-func (t *tokenHandler) getJoinToken(apiKey, apiSeacret, room, identity string) (string, error) {
+func (t *TokenHandler) getJoinToken(apiKey, apiSeacret, room, identity string) (string, error) {
 	at := auth.NewAccessToken(apiKey, apiSeacret)
 	grant := &auth.VideoGrant{
 		RoomJoin: true,
@@ -101,6 +109,6 @@ func (t *tokenHandler) getJoinToken(apiKey, apiSeacret, room, identity string) (
 }
 
 func main() {
-	http.Handle("/token", new(tokenHandler))
+	http.Handle("/token", new(TokenHandler))
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
